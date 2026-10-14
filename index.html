@@ -142,6 +142,8 @@ section{padding:36px 0 8px}
 .stop-npc{font-size:.85rem;margin-bottom:6px}
 .stop .navi{background:var(--surface)}
 .more{margin-top:8px;font-size:.9rem}
+.hint{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(242,184,75,.45);background:rgba(242,184,75,.07);font-size:.9rem}
+.hint p{margin:6px 0}
 .more summary{cursor:pointer;color:var(--muted)}
 .more[open] summary{margin-bottom:8px}
 
@@ -482,13 +484,18 @@ var BOOTHS = [
    desc:"ทดลองงานกับเทคโนโลยีของแต่ละบริษัท เพื่อช่วยนักผจญภัยที่หมดสติในภาคสนามกลับมาอย่างปลอดภัย",
    npcs:[{name:"Kafra Employee",x:176,y:155},{name:"Zonda Employee",x:139,y:154}]},
   {n:5,name:"Schweitzerville College of Magic",th:"มหาวิทยาลัยเวทมนตร์ Schweizerville",card:"sky",
-   desc:"กิจกรรมสำรวจเมืองหัวข้อ “ความงดงามของ Juno” ออกสำรวจสถานที่ต่างๆ ทั่วเมือง",
-   npcs:[{name:"Schweizerville Magic Uni",x:341,y:258,far:true}]},
+   desc:"กิจกรรมสำรวจเมืองหัวข้อ “ความงดงามของ Juno” อาจารย์จะให้เควส “ข้อความปริศนา · ตามล่าหาสมบัติ” พร้อมคำใบ้ (ดูได้ในหน้าต่างเควส Alt+U) ไปหาของตามคำใบ้แล้วกลับมาส่งที่อาจารย์",
+   npcs:[{name:"Schweizerville Magic Uni",x:341,y:258,far:true}],
+   // clues seen in game; the riddle shown may differ per run
+   hunt:[
+     {clue:"“หากต้องการซ่อนต้นไม้ ก็ซ่อนไว้ในป่า แล้วถ้าจะซ่อนกระดาษล่ะ? จงไปหาที่ปลายสุดของปีกขวาในห้องแรก” ที่ซ่อนกระดาษคงจะเป็นห้องสมุดสินะ?",
+      steps:[{t:"เข้าห้องสมุดทางปีกขวาของเมือง",x:334,y:205},{t:"ของอยู่ในห้องแรก",map:"yuno_in04",x:48,y:66}]}
+   ]},
   {n:6,name:"Monster Museum / Juno Monster Society",th:"พิพิธภัณฑ์มอนสเตอร์ / สมาคมมอนสเตอร์แห่ง Juno",card:"blue",pick:true,go:1,
    desc:"เลือกระหว่างแบบทดสอบความรู้เรื่องมอนสเตอร์ (Museum) หรือจับ Andre ผู้น่าสงสัยมาวิจัย (Society)",
    npcs:[{name:"Monster Museum Staff",x:283,y:285,far:true},{name:"Juno Monster Member",x:128,y:197}]},
   {n:7,name:"Juno Library",th:"ห้องสมุด Juno",card:"purple",limit:"วันละ 1 ครั้ง",
-   desc:"ช่วยตามหนังสือจากผู้ที่ยังไม่ได้คืน",
+   desc:"ช่วยตามหนังสือจากผู้ที่ยังไม่ได้คืน (คนละเควสกับคำใบ้ “ซ่อนกระดาษในห้องสมุด” ซึ่งเป็นของบูธ 5)",
    npcs:[{name:"Juno Library Staff",x:355,y:164,far:true}]},
   {n:8,name:"Eden Group",th:"กลุ่ม Eden",card:"black",
    desc:"กิจกรรมจับคู่พี่เลี้ยงกับน้องใหม่ แลกเปลี่ยนประสบการณ์ซึ่งกันและกัน",
@@ -520,7 +527,7 @@ var SLOT4 = [
 var EVENT = {start:"2026-10-14", end:"2026-11-11"};
 
 /* ---------- helpers ---------- */
-function navi(x,y){ return "/navi yuno "+x+"/"+y; }
+function navi(x,y,map){ return "/navi "+(map||"yuno")+" "+x+"/"+y; }
 function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function el(id){ return document.getElementById(id); }
 function today(){
@@ -555,8 +562,8 @@ function doCopy(cmd,btn){
       setTimeout(function(){btn.classList.remove("copied"); if(a) a.textContent="คัดลอก";},1500); }
   }).catch(function(){ toast("คัดลอกไม่ได้ ลองเลือกข้อความเอง: "+cmd); });
 }
-function naviBtn(x,y){
-  var c=navi(x,y);
+function naviBtn(x,y,map){
+  var c=navi(x,y,map);
   return '<button type="button" class="navi" data-cmd="'+esc(c)+'" aria-label="คัดลอก '+esc(c)+'"><span class="cmd">'+esc(c)+'</span><span class="act">คัดลอก</span></button>';
 }
 function npcBlock(n,role){
@@ -614,6 +621,17 @@ function hubStop(h,note){
     '<div class="stop-title"><b>'+esc(h.name)+'</b> <span class="muted small">· '+esc(note)+'</span></div>'+
     naviBtn(h.x,h.y)+'</div></li>';
 }
+function huntBlock(b){
+  if(!b.hunt) return "";
+  return '<div class="hint"><b>เควสตามล่าหาสมบัติ</b> · ดูคำใบ้ของคุณในหน้าต่างเควส (Alt+U)'+
+    b.hunt.map(function(h){
+      return '<p class="muted small">คำใบ้: '+esc(h.clue)+'</p>'+
+        h.steps.map(function(s,i){
+          return '<div class="npc"><div class="who"><span>'+(i+1)+'. '+esc(s.t)+'</span></div>'+naviBtn(s.x,s.y,s.map)+'</div>';
+        }).join("");
+    }).join("")+
+    '<p class="note">ได้ของแล้วกลับไปส่งอาจารย์บูธ 5 ถ้าได้คำใบ้อื่นที่ไม่ตรงกับข้างบน ให้ตีความตามคำใบ้นั้น</p></div>';
+}
 function boothStop(b){
   var c=CARDS[b.card], go=b.npcs[b.go||0], tags="";
   if(b.pick) tags+=' <span class="pill warn">เลือก 1 ใน 2 บูธ/วัน</span>';
@@ -623,7 +641,7 @@ function boothStop(b){
     '<input type="checkbox" data-card="'+b.card+'" aria-label="ได้การ์ด'+c.th+'จากบูธ '+b.n+' แล้ว">'+
     '<div><div class="stop-title">'+chip(b.card)+'<b>บูธ '+b.n+' · '+esc(b.name)+'</b> <span class="muted small">· การ์ด'+c.th+'</span>'+tags+'</div>'+
     '<div class="stop-npc muted">'+esc(go.name)+' · yuno '+go.x+' '+go.y+(go.far?' · ไกลจากกลางเมือง':'')+'</div>'+
-    naviBtn(go.x,go.y)+
+    naviBtn(go.x,go.y)+huntBlock(b)+
     '<details class="more"><summary>รายละเอียดบูธ</summary>'+
       '<p class="muted">'+esc(b.th)+'</p><p>'+esc(b.desc)+'</p>'+
       (alt?'<p class="muted">หรือไปอีกจุดแทน:</p>'+alt:'')+
