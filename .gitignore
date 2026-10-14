@@ -1,2 +1,5 @@
 juno-fall-academic-festival-2026-chatgpt.html
 juno-fall-academic-festival-2026-claude.html
+node_modules/
+test-results/
+playwright-report/

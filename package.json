@@ -1,0 +1,1 @@
+{"name":"juno-guide-qa","private":true,"scripts":{"test":"node --test tests/source.test.cjs && playwright test"},"devDependencies":{"@playwright/test":"1.63.0"}}

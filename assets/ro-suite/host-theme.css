@@ -1,0 +1,16 @@
+/* Host colors/alignment only; immutable navigation controls its own layout. */
+ro-suite-nav {
+  --ro-suite-surface: var(--surface);
+  --ro-suite-surface-hover: var(--surface2);
+  --ro-suite-text: var(--text);
+  --ro-suite-muted: var(--muted);
+  --ro-suite-border: var(--line);
+  --ro-suite-accent: var(--gold);
+  --ro-suite-focus: var(--gold);
+  --ro-suite-font-family: var(--f-body);
+  --ro-suite-content-max-width: 980px;
+  --ro-suite-inline-padding: 16px;
+}
+ro-suite-nav > nav { max-width:980px; margin:auto; padding:4px 16px; background:var(--surface); }
+ro-suite-nav > nav > a { display:inline-flex; align-items:center; min-height:44px; color:var(--gold); }
+ro-suite-nav > nav > a:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
