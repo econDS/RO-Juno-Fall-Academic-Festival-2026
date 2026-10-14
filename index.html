@@ -296,8 +296,8 @@ footer{margin-top:48px;padding:26px 0 60px;border-top:1px solid var(--line);colo
         <div class="step"><b>3 Coin</b>Rising Circlet</div>
         <div class="step"><b>5 Coin</b>Costume 1 ชิ้น</div>
       </div>
-      <div class="mt" data-hub="hist"></div>
-      <p class="note">เครื่อง Vending Machine ในหน้าทางการระบุ NPC เป็น Rekenber Historian (yuno 139 204) ไม่ได้ให้พิกัดของตู้แยก ถ้าไม่เจอให้ดูบริเวณใกล้จุดนี้</p>
+      <div class="mt" data-hub="vend"></div>
+      <p class="note">หน้าทางการระบุ NPC เป็น Rekenber Historian (yuno 139 204) แต่ตู้จริงอยู่ที่ yuno 156 176 ใกล้ Leizi และ Seaside Magic Assistant (ผู้เล่นยืนยันในเกม)</p>
     </div>
 
     <div class="tw">
@@ -466,7 +466,7 @@ var HUB = {
   buff:{name:"Buff Professor",role:"แลกบัฟขนม",x:163,y:175},
   enchant:{name:"Enchant Professor",role:"Enchant Rising Circlet",x:164,y:174},
   sea:{name:"Seaside Magic Assistant",role:"ซื้อขนมด้วย Zeny",x:152,y:175},
-  hist:{name:"Rekenber Historian",role:"จุดแลกเหรียญตามหน้าทางการ",x:139,y:204}
+  vend:{name:"Vending Machine",role:"แลกการ์ดเป็น Coin และ Coin เป็นรางวัล",x:156,y:176}
 };
 
 // go: index of the NPC used on the daily route (the nearer one for pick-one-of-two booths)
@@ -650,8 +650,9 @@ function boothStop(b){
 }
 function renderStops(){
   el("stops").innerHTML=
-    hubStop(HUB.leizi,"จุดเริ่ม · ใกล้ Buff / Enchant / Seaside")+
+    hubStop(HUB.leizi,"จุดเริ่ม · ใกล้ Buff / Enchant / ตู้แลก")+
     ROUTE.map(function(n){return boothStop(booth(n));}).join("")+
+    hubStop(HUB.vend,"การ์ดครบ 8 สี แลกเป็น 1 Coin")+
     hubStop(HUB.buff,"แลก Buff Ticket เป็นบัฟขนม");
 }
 function syncChecks(){
@@ -704,10 +705,11 @@ function renderMap(){
     b.npcs.forEach(function(n){ svg+=pin(n.x,n.y,"บูธ "+b.n+" "+n.name,c.pin||c.hex,b.n,c.dark); });
   });
   svg+=pin(HUB.leizi.x,HUB.leizi.y,HUB.leizi.name,"#f2b84b");
+  svg+=pin(HUB.vend.x,HUB.vend.y,HUB.vend.name,"#f2b84b");
   svg+=pin(HUB.sea.x,HUB.sea.y,HUB.sea.name,"#e0693f");
   svg+='</svg>';
   el("mapbox").innerHTML=svg;
-  el("legend").innerHTML='<span>● หมายเลข = บูธ (สีตามการ์ด)</span><span class="gold">◆ Leizi / Buff / Enchant</span><span class="rust">◆ Seaside</span><span>แตะจุดเพื่อคัดลอก /navi · แกน Y ชี้ขึ้น</span>';
+  el("legend").innerHTML='<span>● หมายเลข = บูธ (สีตามการ์ด)</span><span class="gold">◆ Leizi / Buff / Enchant / ตู้แลก</span><span class="rust">◆ Seaside</span><span>แตะจุดเพื่อคัดลอก /navi · แกน Y ชี้ขึ้น</span>';
 }
 
 /* ---------- slot 4 table ---------- */
